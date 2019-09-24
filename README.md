@@ -4,4 +4,5 @@ A novel approach to reactive navigation which tightly couples an analytically de
 Code coming soon!
 
 Video Submission: https://youtu.be/uhHzbGVPYj4
+
 Paper Submission: Under review at ICRA2020
