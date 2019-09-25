@@ -5,4 +5,4 @@ Code coming soon!
 
 Video Submission: https://youtu.be/uhHzbGVPYj4
 
-Paper Submission: Under review at ICRA2020
+Paper Submission: http://arxiv.org/abs/1909.10972 (Under review at ICRA2020)
