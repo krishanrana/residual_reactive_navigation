@@ -3,7 +3,4 @@ A novel approach to reactive navigation which tightly couples an analytically de
 
 Code coming soon!
 
-Video Submission: https://youtu.be/uhHzbGVPYj4
-
-Paper Submission: http://arxiv.org/abs/1909.10972 (Under review at ICRA2020)
-
+Project Site: https://sites.google.com/view/residualreactivenavigation/home
