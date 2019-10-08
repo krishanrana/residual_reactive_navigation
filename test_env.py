@@ -1,6 +1,6 @@
 import numpy as np, cv2, math, random, time
-from env_ICRA import *
-from APF import *
+from PointGoalNavigationEnv_v0 import *
+from prior_controller import *
 
 #==============================================================================
 # ENV PARAMS

@@ -5,7 +5,6 @@ import numpy as np, torch, torch.nn as nn, sys, gym, copy, random, collections, 
 from termcolor import colored
 from PointGoalNavigationEnv_v0.1 import *
 from prior_controller import *
-from controllers import *
 import os
 import argparse
 
