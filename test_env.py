@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 import numpy as np, cv2, math, random, time
 from PointGoalNavigationEnv_v0 import *
 from prior_controller import *
@@ -20,8 +21,8 @@ HYPERS = dict(# training params
               num_beams          = 270,
               laser_range        = 0.5,
               laser_noise        = 0.01,
-              angle_min          = 3*-np.pi/4,
-              angle_max          = 3*np.pi/4,
+              angle_min          = -0.75*np.pi,
+              angle_max          = 0.75*np.pi,
               timeout            = 300,
               velocity_max       = 1,
               omega_max          = 1,
@@ -35,10 +36,10 @@ for k,v in HYPERS.items(): exec("{} = {!r}".format(k,v))
 
 env = PointGoalNavigation(**HYPERS)
 obs = env.reset()
-prior = PotentialFieldsController()
+prior = PriorController()
 
 while(1):
-    dist_to_goal, angle_to_goal, robot_loc, robot_angle, laser_scan, goal_loc, obs_loc = env._get_position_data()
+    dist_to_goal, angle_to_goal, _, _, laser_scan, _, _ = env._get_position_data()
     action = prior.computeResultant(dist_to_goal, angle_to_goal, laser_scan)
     obs, rews, done, _ = env.step(action)
     env.render()

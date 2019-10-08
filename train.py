@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+# Author: Vibha Dasagi, Krishan Rana
 
 from __future__ import print_function, division
 import numpy as np, torch, torch.nn as nn, sys, gym, copy, random, collections, tensorboardX
@@ -59,7 +60,7 @@ print('Reward Type: ' + str(REWARD_TYPE))
 #env = gym.make(ENV)
 env = PointGoalNavigation(  num_beams    = 270,
               		        laser_range  = 0.5,
-              		        laser_noise  = 0.00001,
+              		        laser_noise  = 0.01,
               		        angle_min    = 3*-np.pi/4,
             		        angle_max    = 3*np.pi/4,
               		        timeout      = 300,
@@ -93,8 +94,8 @@ timestep  = 0
 lambda_    = 1
 buf       = []
 time_tag = str(time.time())
-log_dir = "runs/" + time_tag + "_" + ENV + "_" + "random" + "_EnvType_" + str(ENV_TYPE) + "_" + REWARD_TYPE + "_Dropout_" + CONTROLLER_TYPE + "FINAL"#+ "long_horizon" #swap random with METHOD
-model_name = time_tag + "_" + ENV + "_" + "random" + "_EnvType_" + str(ENV_TYPE) + "_" + REWARD_TYPE + "_Dropout_" + CONTROLLER_TYPE + "FINAL"#+ "long_horizon"
+log_dir = "runs/" + time_tag + "_" + ENV + "_EnvType_" + str(ENV_TYPE) + "_RewardType_" + REWARD_TYPE 
+model_name = time_tag + "_" + ENV + "_EnvType_" + str(ENV_TYPE) + "_RewardType_" + REWARD_TYPE
 os.mkdir("pytorch_models/TD3_Data/" + model_name)
 writer    = tensorboardX.SummaryWriter(log_dir=log_dir)
 
@@ -134,37 +135,6 @@ else:
 
         def forward(self, obs):
             return self.a1(obs)
-
-
-
-
-
-
-
-# class ActorNetwork(nn.Module):
-#     def __init__(self, obs_size, action_dim):
-#         super(ActorNetwork, self).__init__()
-
-#         self.a1 = nn.Linear(obs_size, 400)
-#         self.a2 = nn.Linear(400, 300)
-#         self.a3 = nn.Linear(300, 100)
-#         self.a4 = nn.Linear(100, 1) 
-#         self.a5 = nn.Linear(100, 1)
-        
-#         #self.a4.weight.data *= 0.05
-#         #self.a5.weight.data *= 0.05
-
-#     def forward(self, x):
-#         x = F.relu(self.a1(x))
-#         x = F.relu(self.a2(x))
-#         x = F.relu(self.a3(x))
-
-#         velocity = torch.tanh(self.a4(x)) * 1.0
-#         omega = torch.tanh(self.a5(x)) * 1.0
-#         out = torch.cat([velocity, omega], dim=-1)
-		
-#         return out
- 
 
 #------------------------------------------------------------------------------
 
@@ -226,7 +196,6 @@ def select_action(obs):
 
         return combined_action, policy_action, prior_action, residual_action
 
-
     policy_action = pi(torch.as_tensor(obs).float().cuda()).cpu().detach().numpy()
     policy_action = np.clip(policy_action + np.random.normal(0, SIG_ACT), env.action_space.low, env.action_space.high)
 
@@ -283,8 +252,7 @@ def evaluate_policy(eval_episodes=10, episode_num=0):
             elif METHOD == "combined":
                 nobs, reward, done, _ = env.step(policy_action)
             elif METHOD == "prior":
-                #nobs, reward, done, _ = env.step(prior_action)
-                random_action = np.clip(env.action_space.sample(), env.action_space.low, env.action_space.high)
+                nobs, reward, done, _ = env.step(prior_action)
                 nobs, reward, done, _ = env.step(random_action)
 
             avg_reward += reward

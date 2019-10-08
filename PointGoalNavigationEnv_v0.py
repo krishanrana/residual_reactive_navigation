@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 # Laser Based PointGoalNavigation Gym Environment
 # Author: Jake Bruce, Krishan Rana
 
@@ -28,11 +29,11 @@ class PointGoalNavigation:
             w = 2000, h = 1000, xmn = -2, xmx = 2, ymn = -1, ymx = 1,
             wait = 1, timeout = 1000, k = 0.1, t = 0.0005, eps = 0.025,
             angle_min = -0.75*np.pi, angle_max=0.75*np.pi,
-            laser_range = 0.5, num_beams = 16, laser_noise = 0.01, velocity_max=1, omega_max=1, env_type=1, reward_type="sparse"))
+            laser_range = 0.5, num_beams = 16, laser_noise = 0.01, velocity_max=5, omega_max=10, env_type=1, reward_type="sparse"))
         self.__dict__.update(kwargs)
 
         self.bg_img = cv2.resize(cv2.cvtColor(np.random.randint(225,256,(self.h//8,self.w//8)).astype(np.uint8), cv2.COLOR_GRAY2BGR), dsize=(self.w,self.h), interpolation=cv2.INTER_NEAREST)       
-        self.action_space = spaces.Box(low=np.array([-self.velocity_max, -self.omega_max]), high=np.array([self.velocity_max, self.omega_max]), dtype=np.float64)
+        self.action_space = spaces.Box(low=np.array([-1, -1]), high=np.array([1, 1]), dtype=np.float64)
         self.num_laser_samples = self.num_beams
         self.num_bins = 15
         self.observation_space = spaces.Box(low=-1, high=1, shape=[self.num_bins+4])
@@ -123,10 +124,6 @@ class PointGoalNavigation:
         # Initialise Agent
         self.agent_body  = self.world.CreateDynamicBody(position=(self.robot_loc[0], self.robot_loc[1]), angle=rnd(-np.pi,np.pi), angularVelocity=0, linearDamping=20.0, angularDamping=30.0)
         self.agent_shape = self.agent_body.CreateFixture(shape=b2CircleShape(pos=(0,0), radius=0.05), density=0.1, friction=0.3)
-        self.agent_body.mass = 5
-
-        agent_loc = self.agent_body.GetWorldPoint(self.agent_shape.shape.pos)
-        agent_point = self.w2p(*agent_loc)
 
         self.timestep = 0
 
@@ -207,31 +204,25 @@ class PointGoalNavigation:
     def step(self, action):
 
         # Scale the actions by their maximums
-        lin = float(action[0] * 5)
-        omega = float(action[1] * 10)
+        lin = float(action[0] * self.velocity_max)
+        omega = float(action[1] * self.omega_max)
 
         velocity = (lin*np.cos(self.agent_body.angle), lin*np.sin(self.agent_body.angle))
         
         self.agent_body.linearVelocity = (velocity)
         self.agent_body.angularVelocity = (omega)
 
-
         # Previous range to goal
         prev_dist = self._obs()[-2]
         self.actions_prev = action
 
-        # simulate
+        # Simulate
         self.world.Step(1/60, 10, 10)
         self.world.ClearForces()
 
         dist = self._obs()[-2]
 
-        
         self.timestep += 1
-
-        agent_loc = self.agent_body.GetWorldPoint(self.agent_shape.shape.pos)
-        pix_point = self.w2p(*agent_loc)
-
 
         # Defining the rewards
         dense_rew = ((prev_dist - dist) * 100) - 0.1
@@ -302,7 +293,6 @@ class PointGoalNavigation:
             laser_hit[i] = (laser_scan[i] < self.laser_range).astype(np.float)
             
         return np.concatenate([laser_scan, # distances
-                              #laser_hit, # hit bools
                               self.actions_prev,
                               [dist_to_goal], # linear distance to goal
                               [angle_to_goal]]) # angular difference to goal
