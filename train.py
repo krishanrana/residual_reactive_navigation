@@ -19,7 +19,6 @@ parser.add_argument('--viz_train', type=int, default=0)
 parser.add_argument('--viz_eval', type=int, default=0)
 parser.add_argument('--eval_delay', type=int, default=200)
 parser.add_argument('--reward_type', type=str, default="sparse")
-parser.add_argument('--controller_type', type=str, default="vhf")
 args = parser.parse_args()
 
 #==============================================================================
@@ -48,7 +47,6 @@ PATH          = os.path.dirname(os.path.realpath(__file__))
 METHOD        = args.method
 ENV_TYPE      = args.env_type
 REWARD_TYPE   = args.reward_type
-CONTROLLER_TYPE = args.controller_type
 
 print('Method: ' + str(METHOD))
 print('Env Type: ' + str(ENV_TYPE))
@@ -64,13 +62,12 @@ env = PointGoalNavigation(  num_beams    = 270,
               		        angle_min    = 3*-np.pi/4,
             		        angle_max    = 3*np.pi/4,
               		        timeout      = 300,
-					        velocity_max = 1,
-              		        omega_max    = 1,
+					        velocity_max = 5,
+              		        omega_max    = 10,
                             env_type     = ENV_TYPE,
                             reward_type  = REWARD_TYPE)
 
-prior = PotentialFieldsController()
-prior2 = Controllers()
+prior = PriorController()
 
 env.seed(SEED)
 torch.manual_seed(SEED)
@@ -173,10 +170,7 @@ def load_weights():
 def prior_actor():
 	#action = controller.p_controller_v2(dist_to_goal, angle_to_goal, laser_scan)
     dist_to_goal, angle_to_goal, robot_loc, robot_angle, laser_scan, goal_loc, obs_loc = env._get_position_data()
-    if CONTROLLER_TYPE == "p":
-        action = prior2.p_controller(dist_to_goal, angle_to_goal)
-    else:
-        action = prior.computeResultant(dist_to_goal, angle_to_goal, laser_scan)
+    action = prior.computeResultant(dist_to_goal, angle_to_goal, laser_scan)
     return action
 
 def select_action(obs):
@@ -377,7 +371,6 @@ def train(buf):
 #==============================================================================
 # RUN
 
-#load_weights()
 print('Start Training...')
 for ep in range(EPISODES):
 

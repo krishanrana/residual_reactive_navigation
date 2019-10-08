@@ -24,8 +24,8 @@ HYPERS = dict(# training params
               angle_min          = -0.75*np.pi,
               angle_max          = 0.75*np.pi,
               timeout            = 300,
-              velocity_max       = 1,
-              omega_max          = 1,
+              velocity_max       = 5,
+              omega_max          = 10,
               env_type           = 1,  
 
 )
