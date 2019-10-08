@@ -12,7 +12,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Parameters for training.')
 
-parser.add_argument('--method', type=str, default="residual", help="options include: policy, residual, combined")
+parser.add_argument('--method', type=str, default="rrn", help="options include: policy, rrn, combined")
 parser.add_argument('--env_type', type=int, default=1)
 parser.add_argument('--seed', type=int, default=14)
 parser.add_argument('--viz_train', type=int, default=0)
@@ -74,7 +74,7 @@ torch.manual_seed(SEED)
 np.random.seed(SEED)
 random.seed(SEED)
 
-if METHOD == "residual":
+if METHOD == "rrn":
     obs_size = env.observation_space.shape[0] + 2
 elif METHOD == "policy":
     obs_size = env.observation_space.shape[0]
@@ -111,7 +111,7 @@ class CriticNetwork(nn.Module):
 
 #------------------------------------------------------------------------------
 
-if METHOD == "residual":
+if METHOD == "rrn":
     class ActorNetwork(nn.Module):
         def __init__(self, obs_size, act_size):
             super(ActorNetwork, self).__init__()
@@ -184,11 +184,11 @@ def select_action(obs):
         policy_action = np.clip(env.action_space.sample(), env.action_space.low, env.action_space.high)
         combined_action = ((1/(1+lambda_))*policy_action) + ((lambda_/(1+lambda_))*prior_action)
         combined_action = np.clip(combined_action, env.action_space.low, env.action_space.high)
-        residual_action = policy_action + prior_action 
-        residual_action = np.clip(residual_action, env.action_space.low, env.action_space.high)
+        rrn_action = policy_action + prior_action 
+        rrn_action = np.clip(rrn_action, env.action_space.low, env.action_space.high)
 
 
-        return combined_action, policy_action, prior_action, residual_action
+        return combined_action, policy_action, prior_action, rrn_action
 
     policy_action = pi(torch.as_tensor(obs).float().cuda()).cpu().detach().numpy()
     policy_action = np.clip(policy_action + np.random.normal(0, SIG_ACT), env.action_space.low, env.action_space.high)
@@ -196,10 +196,10 @@ def select_action(obs):
     prior_action = prior_actor()
     combined_action = ((1/(1+lambda_))*policy_action) + ((lambda_/(1+lambda_))*prior_action)
     combined_action = np.clip(combined_action, env.action_space.low, env.action_space.high)
-    residual_action = policy_action + prior_action
-    residual_action = np.clip(residual_action, env.action_space.low, env.action_space.high)
+    rrn_action = policy_action + prior_action
+    rrn_action = np.clip(rrn_action, env.action_space.low, env.action_space.high)
 
-    return combined_action, policy_action, prior_action, residual_action
+    return combined_action, policy_action, prior_action, rrn_action
 
 def clip_tensor(x, mn, mx):
     clipped = torch.max(torch.min(x, mx), mn)
@@ -221,7 +221,7 @@ def evaluate_policy(eval_episodes=10, episode_num=0):
     avg_length = 0.0
     for _ in range(eval_episodes):
 
-        if METHOD == "residual":
+        if METHOD == "rrn":
             prior_action = prior_actor()
             obs = np.concatenate([prior_action, env.reset()])
         elif METHOD == "combined":
@@ -235,10 +235,10 @@ def evaluate_policy(eval_episodes=10, episode_num=0):
         while not done:
             prior_action = prior_actor()
             policy_action = pi(torch.as_tensor(obs).float().cuda()).cpu().detach().numpy()
-            residual_action = (policy_action + prior_action).clip(env.action_space.low, env.action_space.high)
+            rrn_action = (policy_action + prior_action).clip(env.action_space.low, env.action_space.high)
             
-            if METHOD == "residual":
-                nobs, reward, done, _ = env.step(residual_action)
+            if METHOD == "rrn":
+                nobs, reward, done, _ = env.step(rrn_action)
                 prior_action = prior_actor()
                 nobs = np.concatenate([prior_action, nobs])
             elif METHOD == "policy":
@@ -268,7 +268,7 @@ def evaluate_policy(eval_episodes=10, episode_num=0):
 
 def episode():
     global timestep
-    if METHOD == "residual":
+    if METHOD == "rrn":
         prior_action = prior_actor()
         obs = np.concatenate([prior_action, env.reset()])
     elif METHOD == "combined":
@@ -281,10 +281,10 @@ def episode():
     length = 0
     while not done:
         
-        combined_action, policy_action, prior_action, residual_action = select_action(obs)
+        combined_action, policy_action, prior_action, rrn_action = select_action(obs)
 
-        if METHOD == "residual":
-            nobs, rew, done, _ = env.step(residual_action)
+        if METHOD == "rrn":
+            nobs, rew, done, _ = env.step(rrn_action)
             prior_action = prior_actor()
             nobs = np.concatenate([prior_action, nobs])
             buf.append(Exp(obs, policy_action, rew, nobs, done))
