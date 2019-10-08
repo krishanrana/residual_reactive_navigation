@@ -3,8 +3,8 @@
 from __future__ import print_function, division
 import numpy as np, torch, torch.nn as nn, sys, gym, copy, random, collections, tensorboardX
 from termcolor import colored
-from env import *
-from APF import *
+from PointGoalNavigationEnv_v0.1 import *
+from prior_controller import *
 from controllers import *
 import os
 import argparse
