@@ -4,7 +4,7 @@
 from __future__ import print_function, division
 import numpy as np, torch, torch.nn as nn, sys, gym, copy, random, collections, tensorboardX
 from termcolor import colored
-from PointGoalNavigationEnv_v0.1 import *
+from PointGoalNavigationEnv_v0 import *
 from prior_controller import *
 import os
 import argparse
@@ -370,7 +370,7 @@ def train(buf):
 
 #==============================================================================
 # RUN
-
+env.reset()
 print('Start Training...')
 for ep in range(EPISODES):
 
