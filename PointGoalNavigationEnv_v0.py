@@ -123,6 +123,7 @@ class PointGoalNavigation:
         # Initialise Agent
         self.agent_body  = self.world.CreateDynamicBody(position=(self.robot_loc[0], self.robot_loc[1]), angle=rnd(-np.pi,np.pi), angularVelocity=0, linearDamping=20.0, angularDamping=30.0)
         self.agent_shape = self.agent_body.CreateFixture(shape=b2CircleShape(pos=(0,0), radius=0.05), density=0.1, friction=0.3)
+        self.agent_body.mass = 1
 
         self.timestep = 0
 
