@@ -18,11 +18,11 @@ HYPERS = dict(# training params
               eval_interval      = 10000,
 
               # env params
-              num_beams          = 180,
+              num_beams          = 270,
               laser_range        = 0.5,
               laser_noise        = 0.01,
-              angle_min          = -0.5*np.pi,
-              angle_max          = 0.5*np.pi,
+              angle_min          = -0.75*np.pi,
+              angle_max          = 0.75*np.pi,
               timeout            = 300,
               velocity_max       = 5,
               omega_max          = 10,
