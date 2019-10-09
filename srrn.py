@@ -89,7 +89,7 @@ for ep in range(EPISODES):
 
     timest = str(time.time())
     log_dir = "runs/" + timest + "EVALUATION" + model_name
-    writer = SummaryWriter(log_dir=log_dir)
+    #writer = SummaryWriter(log_dir=log_dir)
     
     timestep = 0
     steps = 0
