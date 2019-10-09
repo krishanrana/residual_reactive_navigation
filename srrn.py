@@ -15,7 +15,7 @@ SEED = 10
 EPISODES = 15
 
 # Load the weights from a trained model
-model_name = "1567402735.8656495_PointGoalNavigation_rrn_EnvType_1_sparse"
+model_name = "1567049830.8576467_PointGoalNavigation_rrn_EnvType_1_"
 
 timest = str(time.time())
 log_dir = "runs/" + timest + "EVALUATION" + model_name
@@ -29,8 +29,6 @@ def extract_network_uncertainty(state):
 
 def load_weights():
     pi.load_state_dict(torch.load(PATH + '/pytorch_models/TD3_Data/' + model_name + '/' +  model_name + 'pi.pth'))
-    q1.load_state_dict(torch.load(PATH + '/pytorch_models/TD3_Data/' + model_name + '/' +  model_name + 'q1.pth'))
-    q2.load_state_dict(torch.load(PATH + '/pytorch_models/TD3_Data/' + model_name + '/' +  model_name + 'q2.pth'))
     return
 
 def prior_actor():
@@ -55,7 +53,7 @@ class ActorNetwork(nn.Module):
 env = PointGoalNavigation(  num_beams    = 270,
               		        laser_range  = 0.5,
               		        laser_noise  = 0.01,
-              		        angle_min    = -0.75*-np.pi,
+              		        angle_min    = -0.75*np.pi,
             		        angle_max    = 0.75*np.pi,
               		        timeout      = 300,
 					        velocity_max = 5,
@@ -75,8 +73,6 @@ random.seed(SEED)
 obs_size = env.observation_space.shape[0] + 2
 act_size = env.action_space.shape[0]
 pi = ActorNetwork (obs_size, act_size)
-q1 = CriticNetwork(obs_size, act_size)
-q2 = CriticNetwork(obs_size, act_size)
 load_weights()
 
 timestep = 0
@@ -118,6 +114,7 @@ for ep in range(EPISODES):
             policy_action[0] = 0
             policy_action[1] = 0
             which_method = "prior"
+        nobs = np.concatenate([prior_actor(), nobs])
 
         act_string = "\n" + 'Step: ' + str(steps) + "\n" + 'Prior Action: ' + str(prior_action) + '\r'
         print(act_string, end='\r', flush=True)

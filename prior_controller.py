@@ -55,8 +55,8 @@ class PriorController():
         struct = scipy.ndimage.generate_binary_structure(1, 1)
         hit = scipy.ndimage.binary_dilation(hit, structure=struct, iterations=15).astype(hit.dtype) 
         repulsive_field = np.zeros([(self.fov+1)])
-        #repulsive_field[int(self.fov/8) : int(7*self.fov/8)] = hit
-        repulsive_field[int(self.fov/4) : int(3*self.fov/4)] = hit
+        repulsive_field[int(self.fov/8) : int(7*self.fov/8)] = hit
+        #repulsive_field[int(self.fov/4) : int(3*self.fov/4)] = hit
         return repulsive_field
 
 
