@@ -1,6 +1,9 @@
 # Residual Reactive Navigation: Combining Classical and Learned Navigation Strategies for Deployment in Unknown Environments
+
+Project Site: https://sites.google.com/view/residualreactivenavigation/home
+
 Code and training environment for accompaning paper: https://arxiv.org/abs/1909.10972. A novel approach to reactive navigation which tightly couples an analytically derived model and a learned enhancement policy. The sensor modality utilised is a 2D laser scanner attached to a differential drive mobile robot . All policy training is completed in simulation and zero-shot transferred to the real-world. The final system can operate in real-time on a mobile robot and can navigate across a large cluttered indoor environment. The simulation environment provided is built upon the gym framework and can seamlessly intergrate with exisiting deep reinforcement learning implementations.
 
 Abstract: In this work we focus on improving the efficiency and generalisation of learned navigation strategies when transferred from its training environment to previously unseen ones. We present an extension of the residual reinforcement learning framework from the robotic manipulation literature and adapt it to the vast and unstructured environments that mobile robots can operate in. The concept is based on learning a residual control effect to add to a typical sub-optimal classical controller in order to close the performance gap, whilst guiding the exploration process during training for improved data efficiency. We exploit this tight coupling and propose a novel deployment strategy, switching Residual Reactive Navigation (sRNN), which yields efficient trajectories whilst probabilistically switching to a classical controller in cases of high policy uncertainty. Our approach achieves improved performance over end-to-end alternatives and can be incorporated as part of a complete navigation stack for cluttered indoor navigation tasks in the real world. The code and training environment for this project is made publicly available at this https URL.
 
-Project Site: https://sites.google.com/view/residualreactivenavigation/home
+
